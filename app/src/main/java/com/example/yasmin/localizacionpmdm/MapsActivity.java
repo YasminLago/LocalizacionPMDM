@@ -3,6 +3,7 @@ package com.example.yasmin.localizacionpmdm;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,9 +13,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -31,11 +37,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     double latMark = 42.2368914;
     double lngMark = -8.712825199999997;
 
+    Circle circle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        //Creacion fragmento de forma dinamica
+        //Creación fragmento de forma dinámica
         mFirstMapFragment = FirstMapFragment.newInstance();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -53,6 +61,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         solicitarPermiso();
         mMap.getUiSettings().setZoomControlsEnabled(true); //Controles integrados de zoom
+        mMap.getUiSettings().setCompassEnabled(true); //Brújula
+        crearZonaLimitada();
     }
 
     /***********************OBTENCIÓN DE UBICACIÓN A TRAVÉS DE LOCATION MANAGER********************/
@@ -79,11 +89,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         @Override
         public void onLocationChanged(Location loc) {
-            loc.getLatitude();
-            loc.getLongitude();
-            Log.e("GIIIIIII", "WIIIIII" + loc.getLatitude() + " " + loc.getLongitude());
-            comparaDistancia(loc);
+            //LatLng miPosicion = new LatLng(loc.getLatitude(), loc.getLongitude());
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(miPosicion, 16));
+            compararDistancia(loc);
             calcularDistancia(loc);
+
         }
 
         /**
@@ -135,15 +145,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
    public double calcularDistancia(Location loc) {
        latitud = loc.getLatitude();
        longitud = loc.getLongitude();
-       Log.e("GIIIIIII", "calcularDistancia" + latitud + longitud);
        Location myLocation = new Location("Mi localización");
-           myLocation.setLatitude(latitud);
-           myLocation.setLongitude(longitud);
+          // myLocation.setLatitude(latitud);
+         //  myLocation.setLongitude(longitud);
+       myLocation.setLatitude(42.2463092);
+       myLocation.setLongitude(-8.701472200000012);
        Location markerLocation = new Location("Localización marca");
-       //markerLocation.setLatitude(42.2463092);
-       //markerLocation.setLongitude(-8.701472200000012);
-           markerLocation.setLatitude(latMark);
-           markerLocation.setLongitude(lngMark);
+       markerLocation.setLatitude(42.2559832);
+       markerLocation.setLongitude(-8.683698400000026);
+           //markerLocation.setLatitude(latMark);
+          // markerLocation.setLongitude(lngMark);
        distanciaEntrePuntos = myLocation.distanceTo(markerLocation);
 
        return distanciaEntrePuntos;
@@ -151,17 +162,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     /**
      * Compara la distancia entre 20 (en metros). Si la distancia es menor o igual
-     * a 20 se mostrara la marca de dicho lugar.
+     * a 20 se mostrará la marca de dicho lugar.
      * @param loc
      */
-   public void comparaDistancia(Location loc){
+   public void compararDistancia(Location loc){
        double distancia = calcularDistancia(loc);
-       Toast.makeText(getApplicationContext(), String.valueOf(distancia),
-               Toast.LENGTH_SHORT).show();
-       Log.e("GIIIIIII","distancia "+String.valueOf(distancia));
        if(distancia <= 20.00){
             crearMarca();
        }
+       cambiarColorZonaDelimitada(distancia);
    }
 
     /**
@@ -172,6 +181,44 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                .position(new LatLng(latMark, lngMark))
                .title("Aquí estoy!!"));
    }
+
+    /**
+     * Delimita la zona en la que hay que buscar la marca dentro de un círculo
+     */
+    public void crearZonaLimitada(){
+        LatLng center = new LatLng(42.2367671, -8.71800010000004);
+        int radius = 2500;
+        CircleOptions circleOptions = new CircleOptions()
+                .center(center)
+                .radius(radius)
+                .strokeWidth(4);
+        circle = mMap.addCircle(circleOptions);
+    }
+
+    /**
+     * Dependiendo de la distancia a la que esté el usuario de la marca,
+     * la zona delimitada cambiará de color.(Rojo, naranja, amarillo o verde)
+     * @param distance Distancia a la que se encuentra el usuario de la marca
+     */
+    public void cambiarColorZonaDelimitada(double distance){
+        if(distance >= 1000.00){
+            circle.setFillColor(Color.argb(75, 255, 51, 51));
+            circle.setStrokeColor(Color.parseColor("#660000"));
+        }
+        if(distance >= 500.00 && distance < 1000.00){
+            circle.setFillColor(Color.argb(75, 255, 128, 0));
+            circle.setStrokeColor(Color.parseColor("#FF8000"));
+        }
+        if(distance < 500.00 && distance > 100.00){
+            circle.setFillColor(Color.argb(75, 255, 255, 0));
+            circle.setStrokeColor(Color.parseColor("#FFFF00"));
+        }
+        if(distance <=100.00) {
+            circle.setFillColor(Color.argb(75, 76, 153, 0));
+            circle.setStrokeColor(Color.parseColor("#1ea00d"));
+        }
+    }
+
 
     /***********************************PERMISOS DE LOCALIZACIÓN***********************************/
     /**
