@@ -34,8 +34,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     double latitud, longitud, distanciaEntrePuntos;
 
     //Coordenadas del sitio donde está puesta la marca
-    double latMark = 42.2368914;
-    double lngMark = -8.712825199999997;
+    double latMark = 42.2387952;
+    double lngMark = -8.711571800000002;
 
     //Instrucciones del juego
     String instrucciones = "En este mapa hay una marca que no se ve...\n" +
@@ -158,13 +158,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
        Location myLocation = new Location("Mi localización");
            myLocation.setLatitude(latitud);
            myLocation.setLongitude(longitud);
-       //myLocation.setLatitude(42.2463092);
-       //myLocation.setLongitude(-8.701472200000012);
+       //myLocation.setLatitude(42.2390084);
+       //myLocation.setLongitude(-8.711113299999965);
        Location markerLocation = new Location("Localización marca");
-       markerLocation.setLatitude(42.2559832);
-       markerLocation.setLongitude(-8.683698400000026);
-           //markerLocation.setLatitude(latMark);
-          // markerLocation.setLongitude(lngMark);
+       //markerLocation.setLatitude(42.2559832);
+       //markerLocation.setLongitude(-8.683698400000026);
+           markerLocation.setLatitude(latMark);
+           markerLocation.setLongitude(lngMark);
        distanciaEntrePuntos = myLocation.distanceTo(markerLocation);
 
        return distanciaEntrePuntos;
