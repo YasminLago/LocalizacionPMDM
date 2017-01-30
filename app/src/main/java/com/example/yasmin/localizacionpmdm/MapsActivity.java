@@ -11,12 +11,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.Circle;
@@ -27,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    Circle circle;
     private FirstMapFragment mFirstMapFragment;
     private static final int PERMISO = 1;
 
@@ -37,7 +37,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     double latMark = 42.2368914;
     double lngMark = -8.712825199999997;
 
-    Circle circle;
+    //Instrucciones del juego
+    String instrucciones = "En este mapa hay una marca que no se ve...\n" +
+                            "Pero no te preocupes! Como verás, el mapa está " +
+                            "delimitado. Es dentro de esa zona donde " +
+                            "tendrás que buscar la marca. La zona, irá cambiando de color:\n" +
+                            "\tRojo: Madre mía...por ahí va a ser que no\n" +
+                            "\tNaranja: No está mal, pero aún te queda una buena pateada\n" +
+                            "\tAmarillo: Ahora si que si!\n" +
+                            "\tVerde: Ya puedes oler la marca\n" +
+                            "Listo? Pues a jugar!!";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +60,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .commit();
         mFirstMapFragment.getMapAsync(this);//Asocia la actividad como escucha
         obtenerUbicacion();
+        crearDialogoInstrucciones();
     }
 
     /**
@@ -62,7 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         solicitarPermiso();
         mMap.getUiSettings().setZoomControlsEnabled(true); //Controles integrados de zoom
         mMap.getUiSettings().setCompassEnabled(true); //Brújula
-        crearZonaLimitada();
+        crearZonaDelimitada();
     }
 
     /***********************OBTENCIÓN DE UBICACIÓN A TRAVÉS DE LOCATION MANAGER********************/
@@ -146,10 +156,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
        latitud = loc.getLatitude();
        longitud = loc.getLongitude();
        Location myLocation = new Location("Mi localización");
-          // myLocation.setLatitude(latitud);
-         //  myLocation.setLongitude(longitud);
-       myLocation.setLatitude(42.2463092);
-       myLocation.setLongitude(-8.701472200000012);
+           myLocation.setLatitude(latitud);
+           myLocation.setLongitude(longitud);
+       //myLocation.setLatitude(42.2463092);
+       //myLocation.setLongitude(-8.701472200000012);
        Location markerLocation = new Location("Localización marca");
        markerLocation.setLatitude(42.2559832);
        markerLocation.setLongitude(-8.683698400000026);
@@ -185,7 +195,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /**
      * Delimita la zona en la que hay que buscar la marca dentro de un círculo
      */
-    public void crearZonaLimitada(){
+    public void crearZonaDelimitada(){
         LatLng center = new LatLng(42.2367671, -8.71800010000004);
         int radius = 2500;
         CircleOptions circleOptions = new CircleOptions()
@@ -219,6 +229,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**************************************CREACIÓN DE MENÚ****************************************/
+    /**
+     * Método autoinvocado para inflar el código XML (menu_main.xml)
+     * @param menu Instancia del elemento <menú>
+     * @return Devuelte un true para indicar que la acción ha sido exitosa
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Método autoinvocado cuando el usuario presiona un botón.
+     * Para saber que botón ha sido presionado se obtiene su id
+     * con el método getItemId().
+     * @param item Instancia del nodo <item>
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.instrucciones:
+                crearDialogoInstrucciones();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Crea un AlertDialog con las instrucciones del juego
+     */
+    public void crearDialogoInstrucciones(){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle("Encuentra la marca oculta!!");
+        build.setMessage(instrucciones);
+        build.setPositiveButton("Aceptar",null);
+        build.create();
+        build.show();
+    }
+    /**************************************FIN CREACIÓN MENÚ***************************************/
 
     /***********************************PERMISOS DE LOCALIZACIÓN***********************************/
     /**
