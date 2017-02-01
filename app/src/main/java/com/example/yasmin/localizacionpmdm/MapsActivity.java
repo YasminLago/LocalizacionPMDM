@@ -34,8 +34,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     double latitud, longitud, distanciaEntrePuntos;
 
     //Coordenadas del sitio donde está puesta la marca
-    double latMark = 42.2387952;
-    double lngMark = -8.711571800000002;
+    double latMark = 42.2390621;
+    double lngMark = -8.711382500000013;
 
     //Instrucciones del juego
     String instrucciones = "En este mapa hay una marca que no se ve...\n" +
@@ -197,7 +197,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     public void crearZonaDelimitada(){
         LatLng center = new LatLng(42.2367671, -8.71800010000004);
-        int radius = 2500;
+        int radius = 100;
         CircleOptions circleOptions = new CircleOptions()
                 .center(center)
                 .radius(radius)
@@ -211,19 +211,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param distance Distancia a la que se encuentra el usuario de la marca
      */
     public void cambiarColorZonaDelimitada(double distance){
-        if(distance >= 1000.00){
+        if(distance >= 100.00){
             circle.setFillColor(Color.argb(75, 255, 51, 51));
             circle.setStrokeColor(Color.parseColor("#660000"));
         }
-        if(distance >= 500.00 && distance < 1000.00){
+        if(distance >= 75.00 && distance < 100.00){
             circle.setFillColor(Color.argb(75, 255, 128, 0));
             circle.setStrokeColor(Color.parseColor("#FF8000"));
         }
-        if(distance < 500.00 && distance > 100.00){
+        if(distance < 75.00 && distance > 50.00){
             circle.setFillColor(Color.argb(75, 255, 255, 0));
             circle.setStrokeColor(Color.parseColor("#FFFF00"));
         }
-        if(distance <=100.00) {
+        if(distance <=50.00) {
             circle.setFillColor(Color.argb(75, 76, 153, 0));
             circle.setStrokeColor(Color.parseColor("#1ea00d"));
         }
